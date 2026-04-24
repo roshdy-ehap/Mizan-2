@@ -2,32 +2,66 @@
   "name": "mizan-pos",
   "productName": "Mizan POS",
   "version": "3.1.0",
-  "description": "Mizan POS System",
+  "description": "نظام نقاط بيع احترافي - Mizan POS System",
+  "author": "Roshdy Ehab <rshdyayhab06@gmail.com>",
+  "license": "MIT",
   "main": "main.js",
+  "homepage": "https://github.com/roshdy-ehap/Mizan-2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/roshdy-ehap/Mizan-2.git"
+  },
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win portable --x64"
+    "build": "electron-builder --win portable --x64",
+    "build:installer": "electron-builder --win nsis --x64",
+    "build:all": "electron-builder --win portable nsis --x64",
+    "build:cached": "electron-builder --win portable --x64 --cache",
+    "dev": "electron .",
+    "pack": "electron-builder --win portable --x64 --dir",
+    "dist": "electron-builder --win portable --x64"
   },
   "build": {
     "appId": "com.mizan.pos",
     "productName": "Mizan POS",
+    "directories": {
+      "output": "dist",
+      "buildResources": "src"
+    },
     "asar": true,
-    "directories": { "output": "dist" },
     "files": [
       "main.js",
       "preload.js",
       "src/**/*"
     ],
     "win": {
-      "target": "portable",
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "src/icon.ico"
     },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
     "portable": {
-      "artifactName": "Mizan-POS-Setup.exe"
+      "artifactName": "Mizan-POS-${version}.exe"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "roshdy-ehap",
+      "repo": "Mizan-2"
     }
   },
   "devDependencies": {
-    "electron": "22.3.27",
-    "electron-builder": "^24.13.3"
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
   }
 }
