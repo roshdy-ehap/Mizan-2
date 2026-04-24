@@ -1,0 +1,38 @@
+{
+  "name": "mizan-pos",
+  "productName": "Mizan POS",
+  "version": "3.1.0",
+  "description": "Mizan POS System",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable --x64"
+  },
+  "build": {
+    "appId": "com.mizan.pos",
+    "productName": "Mizan POS",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*"
+    ],
+    "extraResources": [],
+    "win": {
+      "target": "portable",
+      "icon": "src/icon.ico"
+    },
+    "portable": {
+      "artifactName": "Mizan-POS-Setup.exe"
+    },
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    }
+  },
+  "devDependencies": {
+    "electron": "28.3.3",
+    "electron-builder": "^24.13.3"
+  }
+}
