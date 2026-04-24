@@ -11,8 +11,13 @@
   "build": {
     "appId": "com.mizan.pos",
     "productName": "Mizan POS",
+    "asar": true,
     "directories": { "output": "dist" },
-    "files": ["main.js", "preload.js", "src/**/*"],
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*"
+    ],
     "win": {
       "target": "portable",
       "icon": "src/icon.ico"
