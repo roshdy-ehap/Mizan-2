@@ -1,11 +1,11 @@
 @echo off
-chcp 65001 >nul
-title Mizan POS - Dev Mode
+REM هذا الملف لتشغيل التطبيق في وضع التطوير
+title Mizan POS - Development Mode
+color 0B
 
-if not exist "node_modules\electron" (
-    echo Installing dependencies...
-    npm install
-)
+echo.
+echo  تشغيل التطبيق في وضع التطوير...
+echo.
 
-echo Starting Mizan POS...
-npx electron .
+npm start
+pause
