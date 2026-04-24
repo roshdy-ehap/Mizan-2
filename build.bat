@@ -1,65 +1,120 @@
 @echo off
+REM ============================================
+REM Mizan POS - Build Script
+REM نظام ميزان لنقاط البيع - سكريبت البناء
+REM ============================================
+
 chcp 65001 >nul
 color 0B
-title Mizan POS - Build
+title Mizan POS - Build System
 
 echo.
-echo  ============================================
-echo    Mizan POS - Build EXE
-echo    النتيجة: EXE واحد بدون اي تثبيت
-echo  ============================================
+echo  ╔════════════════════════════════════════╗
+echo  ║   Mizan POS - Build EXE                ║
+echo  ║   نظام ميزان - بناء التطبيق           ║
+echo  ║   Version 3.1.0                        ║
+echo  ╚════════════════════════════════════════╝
 echo.
 
-:: ── التحقق من Node.js ──
+REM ── التحقق من Node.js ──
+echo  [*] التحقق من Node.js...
 node --version >nul 2>&1
 if errorlevel 1 (
     color 0C
-    echo  [ERROR] Node.js مش مثبت
     echo.
-    echo  حمله من: https://nodejs.org
-    echo  اختر: LTS - ثم شغل ملف البناء مرة ثانية
+    echo  ✗ خطأ: Node.js غير مثبت
+    echo.
+    echo  الحل:
+    echo  1. اذهب إلى https://nodejs.org
+    echo  2. حمّل LTS Version
+    echo  3. ثبت البرنامج
+    echo  4. أعد تشغيل هذا الملف
     echo.
     pause & exit /b 1
 )
-echo  [OK] Node.js: 
+echo  ✓ Node.js موجود: 
 node --version
 
-:: ── تثبيت المكتبات ──
+REM ── التحقق من npm ──
+echo.
+echo  [*] التحقق من npm...
+npm --version >nul 2>&1
+if errorlevel 1 (
+    color 0C
+    echo  ✗ خطأ: npm غير موجود
+    pause & exit /b 1
+)
+echo  ✓ npm موجود: 
+npm --version
+
+REM ── تثبيت المكتبات إن لزم الأمر ──
+echo.
+echo  [*] فحص المكتبات...
 if not exist "node_modules\electron" (
+    echo  ! المكتبات غير موجودة - جاري التثبيت (قد يأخذ 5-10 دقائق)...
     echo.
-    echo  [INFO] تثبيت Electron - مرة واحدة فقط - قد ياخد 5 دقائق...
     npm install
     if errorlevel 1 (
-        echo  [ERROR] فشل npm install
-        echo  تاكد من الاتصال بالانترنت
+        color 0C
+        echo.
+        echo  ✗ خطأ: فشل npm install
+        echo  - تحقق من الاتصال بالانترنت
+        echo  - حاول مرة أخرى
+        echo.
         pause & exit /b 1
     )
-    echo  [OK] تم تثبيت المكتبات
+    echo  ✓ تم تثبيت المكتبات بنجاح
+) else (
+    echo  ✓ المكتبات موجودة
 )
 
-:: ── بناء الـ EXE ──
+REM ── بناء الـ EXE ──
 echo.
-echo  [INFO] جاري البناء - انتظر 3-8 دقائق...
+echo  [*] جاري البناء (هذا قد يأخذ 5-15 دقائق)...
 echo.
 
 npx electron-builder --win portable --x64
 
 echo.
-if exist "dist\Mizan-POS-Setup.exe" (
+REM ── التحقق من نجاح البناء ──
+if exist "dist\Mizan-POS-*.exe" (
     color 0A
-    echo  ============================================
-    echo   تم البناء بنجاح!
+    for /f "tokens=*" %%A in ('dir /b dist\Mizan-POS-*.exe 2^>nul') do set "filename=%%A"
+    
+    echo  ╔════════════════════════════════════════╗
+    echo  ║  ✓ تم البناء بنجاح!                    ║
+    echo  ╚════════════════════════════════════════╝
     echo.
-    echo   الملف: dist\Mizan-POS-Setup.exe
+    echo  الملف: dist\!filename!
     echo.
-    echo   انقله لاي جهاز Windows وشغله مباشرة
-    echo   لا يحتاج Python او اي تثبيت
-    echo  ============================================
+    echo  المعلومات:
+    echo  - نوع الملف: EXE محمول
+    echo  - لا يحتاج تثبيت
+    echo  - يعمل على أي جهاز Windows 7+
+    echo  - يمكنك نسخه وتشغيله مباشرة
+    echo.
+    echo  الخطوة التالية:
+    echo  1. انسخ الملف لأي مكان
+    echo  2. شغّله مباشرة من أي جهاز Windows
+    echo  3. لا تحتاج تثبيت Python أو أي شيء آخر
+    echo.
+    
+    REM فتح مجلد dist
+    echo  [*] فتح مجلد الملفات...
     start "" dist
+    
 ) else (
     color 0C
-    echo  [ERROR] لم ينشا الملف
-    echo  ابحث عن اي سطر يبدا بـ Error في الاخراج اعلاه
+    echo  ✗ خطأ: فشل البناء
+    echo.
+    echo  أسباب محتملة:
+    echo  1. خطأ في الملفات (اطلب على المطور)
+    echo  2. مشكلة في Node.js (أعد التثبيت)
+    echo  3. خطأ في المكتبات (احذف node_modules وأعد npm install)
+    echo.
+    echo  ابحث في الرسائل أعلاه عن كلمة "Error"
+    echo.
 )
 
+echo.
 pause
