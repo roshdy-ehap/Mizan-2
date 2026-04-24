@@ -3,6 +3,7 @@ const path = require('path');
 const fs   = require('fs');
 const os   = require('os');
 
+// ── البيانات في AppData — ثابتة دايماً ──────────────────
 const DATA_DIR   = path.join(app.getPath('userData'), 'data');
 const BACKUP_DIR = path.join(app.getPath('userData'), 'backups');
 const DB_FILE    = path.join(DATA_DIR, 'db.json');
@@ -11,9 +12,15 @@ const DB_FILE    = path.join(DATA_DIR, 'db.json');
   try { if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true }); } catch(e) {}
 });
 
+// ── مسار ملفات التطبيق (يشتغل داخل asar وخارجه) ────────
+function getAppPath() {
+  // app.getAppPath() بيرجع المسار الصح سواء asar أو لأ
+  return app.getAppPath();
+}
+
 function getIconPath() {
-  const ico = path.join(__dirname, 'src', 'icon.ico');
-  return fs.existsSync(ico) ? ico : undefined;
+  const ico = path.join(getAppPath(), 'src', 'icon.ico');
+  try { return fs.existsSync(ico) ? ico : undefined; } catch(e) { return undefined; }
 }
 
 let mainWindow;
@@ -26,12 +33,11 @@ function createWindow() {
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(getAppPath(), 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
       webSecurity: false,
-      allowRunningInsecureContent: true,
     }
   };
   const ico = getIconPath();
@@ -40,37 +46,26 @@ function createWindow() {
   mainWindow = new BrowserWindow(opts);
   mainWindow.setMenuBarVisibility(false);
 
-  // ── التحميل مع retry ──
-  const htmlPath = path.join(__dirname, 'src', 'index.html');
+  const htmlPath = path.join(getAppPath(), 'src', 'index.html');
 
-  if (fs.existsSync(htmlPath)) {
-    mainWindow.loadFile(htmlPath);
-  } else {
-    // fallback: جرب بـ URL
-    mainWindow.loadURL('file://' + htmlPath.replace(/\\/g, '/'));
-  }
-
-  // اظهار النافذة بعد التحميل
-  mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.show();
-    mainWindow.focus();
-  });
-
-  // لو فشل التحميل — اظهر النافذة على طول مع رسالة
-  mainWindow.webContents.on('did-fail-load', (_e, code, desc, url) => {
-    console.error('Load failed:', code, desc, url);
-    mainWindow.show();
-    mainWindow.loadURL(
-      'data:text/html;charset=utf-8,' +
-      encodeURIComponent(
-        '<html dir="rtl"><body style="background:#070d1a;color:#f05252;font-family:sans-serif;text-align:center;padding:60px">' +
-        '<h2>خطأ في تحميل التطبيق</h2>' +
-        '<p style="color:#6a84aa">كود الخطأ: ' + code + '</p>' +
-        '<p style="color:#6a84aa;font-size:12px">' + htmlPath + '</p>' +
-        '</body></html>'
-      )
-    );
-  });
+  mainWindow.loadFile(htmlPath)
+    .then(() => {
+      mainWindow.show();
+      mainWindow.focus();
+    })
+    .catch((err) => {
+      mainWindow.show();
+      mainWindow.loadURL(
+        'data:text/html;charset=utf-8,' +
+        encodeURIComponent(
+          '<html dir="rtl"><body style="background:#070d1a;color:#f05252;font-family:sans-serif;text-align:center;padding:60px">' +
+          '<h2>\u062e\u0637\u0623 \u0641\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0637\u0628\u064a\u0642</h2>' +
+          '<p style="color:#6a84aa;margin-top:12px">' + htmlPath + '</p>' +
+          '<p style="color:#6a84aa;font-size:12px;margin-top:8px">' + err.message + '</p>' +
+          '</body></html>'
+        )
+      );
+    });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('http')) shell.openExternal(url);
@@ -136,7 +131,7 @@ ipcMain.handle('list-folder', async (_e, folderPath) => {
 ipcMain.handle('select-folder', async (_e, title) => {
   if (!mainWindow) return { ok: false };
   const r = await dialog.showOpenDialog(mainWindow, {
-    title: title || 'اختر مجلداً',
+    title: title || '\u0627\u062e\u062a\u0631 \u0645\u062c\u0644\u062f\u0627\u064b',
     properties: ['openDirectory'],
     defaultPath: os.homedir(),
   });
@@ -147,7 +142,7 @@ ipcMain.handle('select-folder', async (_e, title) => {
 ipcMain.handle('save-dialog', async (_e, defaultName, data) => {
   if (!mainWindow) return { ok: false };
   const r = await dialog.showSaveDialog(mainWindow, {
-    title: 'حفظ نسخة احتياطية',
+    title: '\u062d\u0641\u0638 \u0646\u0633\u062e\u0629 \u0627\u062d\u062a\u064a\u0627\u0637\u064a\u0629',
     defaultPath: path.join(os.homedir(), 'Desktop', defaultName || 'backup.json'),
     filters: [{ name: 'JSON', extensions: ['json'] }],
   });
@@ -159,7 +154,7 @@ ipcMain.handle('save-dialog', async (_e, defaultName, data) => {
 ipcMain.handle('open-dialog', async () => {
   if (!mainWindow) return { ok: false };
   const r = await dialog.showOpenDialog(mainWindow, {
-    title: 'استعادة نسخة احتياطية',
+    title: '\u0627\u0633\u062a\u0639\u0627\u062f\u0629 \u0646\u0633\u062e\u0629 \u0627\u062d\u062a\u064a\u0627\u0637\u064a\u0629',
     defaultPath: os.homedir(),
     filters: [{ name: 'JSON', extensions: ['json'] }, { name: 'All Files', extensions: ['*'] }],
     properties: ['openFile'],
