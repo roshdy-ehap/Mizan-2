@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mizan POS</title>
+    <title>Mizan POS - نظام نقاط البيع</title>
     <style>
         * {
             margin: 0;
@@ -16,30 +16,112 @@
             color: #e1e8ed;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 16px;
+            line-height: 1.6;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: #0f1929;
+            border-left: 1px solid #1e293b;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
             padding: 20px;
+            border-bottom: 2px solid #1e293b;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            color: #3b82f6;
+            font-size: 18px;
+        }
+
+        .sidebar-menu {
+            padding: 10px 0;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 15px 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-right: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: #1e293b;
+            color: #3b82f6;
+            border-right-color: #3b82f6;
+        }
+
+        .main-content {
+            margin-right: 250px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         header {
             background: #0f1929;
             border-bottom: 2px solid #1e293b;
-            padding: 20px 0;
-            margin-bottom: 30px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        h1 {
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title h1 {
             color: #3b82f6;
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 24px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .user-info {
+            background: #1e293b;
+            padding: 10px 20px;
+            border-radius: 6px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .container {
+            flex: 1;
+            padding: 30px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
         }
 
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -50,37 +132,33 @@
             border-radius: 8px;
             padding: 20px;
             transition: all 0.3s ease;
+            text-align: center;
         }
 
         .card:hover {
             border-color: #3b82f6;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
         }
 
-        .card h2 {
-            color: #3b82f6;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .card p {
+        .card-title {
             color: #94a3b8;
             font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s ease;
+        .card-value {
+            color: #3b82f6;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
         }
 
-        .btn:hover {
-            background: #2563eb;
+        .card-subtitle {
+            color: #64748b;
+            font-size: 12px;
         }
 
         .section {
@@ -91,10 +169,55 @@
             margin-bottom: 20px;
         }
 
-        .section h2 {
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .section-title {
             color: #3b82f6;
-            margin-bottom: 15px;
             font-size: 20px;
+            font-weight: 600;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: #94a3b8;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+            color: #e1e8ed;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
         }
 
         table {
@@ -113,18 +236,78 @@
             background: #1e293b;
             color: #3b82f6;
             font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         tr:hover {
             background: #1e293b;
         }
 
-        .status-active {
-            color: #10b981;
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-family: inherit;
         }
 
-        .status-inactive {
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #064e3b;
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: #7f1d1d;
             color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .alert-info {
+            background: #0c4a6e;
+            color: #0ea5e9;
+            border: 1px solid #0ea5e9;
         }
 
         footer {
@@ -132,104 +315,574 @@
             padding: 20px;
             color: #64748b;
             border-top: 1px solid #1e293b;
-            margin-top: 30px;
+            margin-right: 250px;
+            font-size: 13px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-left: none;
+                border-bottom: 2px solid #1e293b;
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+
+            .sidebar-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 0 10px;
+            }
+
+            .sidebar-menu a {
+                white-space: nowrap;
+                border-right: none;
+                border-bottom: 3px solid transparent;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            footer {
+                margin-right: 0;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>نظام ميزان نقاط البيع</h1>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>☰ ميزان POS</h2>
         </div>
-    </header>
-
-    <div class="container">
-        <div class="dashboard">
-            <div class="card">
-                <h2>المبيعات اليومية</h2>
-                <p id="daily-sales">0.00 ريال</p>
-            </div>
-            <div class="card">
-                <h2>عدد الفواتير</h2>
-                <p id="invoice-count">0</p>
-            </div>
-            <div class="card">
-                <h2>المنتجات</h2>
-                <p id="product-count">0</p>
-            </div>
-            <div class="card">
-                <h2>العملاء</h2>
-                <p id="customer-count">0</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>الفواتير الأخيرة</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>رقم الفاتورة</th>
-                        <th>التاريخ</th>
-                        <th>المبلغ</th>
-                        <th>الحالة</th>
-                    </tr>
-                </thead>
-                <tbody id="invoices-table">
-                    <tr>
-                        <td colspan="4" style="text-align: center; color: #64748b;">لا توجد فواتير</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="section">
-            <h2>الإجراءات السريعة</h2>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn" onclick="newInvoice()">فاتورة جديدة</button>
-                <button class="btn" onclick="addProduct()">إضافة منتج</button>
-                <button class="btn" onclick="manageCustomers()">إدارة العملاء</button>
-                <button class="btn" onclick="viewReports()">التقارير</button>
-                <button class="btn" onclick="backup()">نسخ احتياطية</button>
-            </div>
+        <div class="sidebar-menu">
+            <a href="#" onclick="showPage('dashboard', event)" class="nav-link active">📊 لوحة التحكم</a>
+            <a href="#" onclick="showPage('invoices', event)" class="nav-link">📄 الفواتير</a>
+            <a href="#" onclick="showPage('products', event)" class="nav-link">📦 المنتجات</a>
+            <a href="#" onclick="showPage('customers', event)" class="nav-link">👥 العملاء</a>
+            <a href="#" onclick="showPage('reports', event)" class="nav-link">📈 التقارير</a>
+            <a href="#" onclick="showPage('backup', event)" class="nav-link">💾 النسخ الاحتياطية</a>
+            <a href="#" onclick="showPage('settings', event)" class="nav-link">⚙️ الإعدادات</a>
         </div>
     </div>
 
-    <footer>
-        <p>نظام ميزان لنقاط البيع - الإصدار 3.1.0</p>
-        <p style="font-size: 12px; margin-top: 5px;">جميع الحقوق محفوظة © 2026</p>
-    </footer>
+    <!-- Main Content -->
+    <div class="main-content">
+        <header>
+            <div class="header-title">
+                <h1>نظام ميزان نقاط البيع</h1>
+            </div>
+            <div class="header-actions">
+                <div class="user-info" id="userInfo">جاهز</div>
+            </div>
+        </header>
+
+        <div class="container">
+            <div id="alert" class="alert"></div>
+
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page-section active">
+                <div class="dashboard">
+                    <div class="card">
+                        <div class="card-title">المبيعات اليومية</div>
+                        <div class="card-value" id="dailySales">0.00</div>
+                        <div class="card-subtitle">ريال</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">عدد الفواتير</div>
+                        <div class="card-value" id="invoiceCount">0</div>
+                        <div class="card-subtitle">اليوم</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">المنتجات</div>
+                        <div class="card-value" id="productCount">0</div>
+                        <div class="card-subtitle">في المستودع</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">العملاء</div>
+                        <div class="card-value" id="customerCount">0</div>
+                        <div class="card-subtitle">مسجلين</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">الفواتير الأخيرة</div>
+                        <button class="btn" onclick="showPage('invoices', event)">عرض الكل</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>التاريخ</th>
+                                <th>المبلغ</th>
+                                <th>الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentInvoices">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #64748b;">لا توجد فواتير</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Invoices Page -->
+            <div id="invoices" class="page-section">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">إدارة الفواتير</div>
+                        <button class="btn" onclick="newInvoice()">+ فاتورة جديدة</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>التاريخ</th>
+                                <th>العميل</th>
+                                <th>المبلغ</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoicesTable">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #64748b;">لا توجد فواتير</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Products Page -->
+            <div id="products" class="page-section">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">إدارة المنتجات</div>
+                        <button class="btn" onclick="newProduct()">+ منتج جديد</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم المنتج</th>
+                                <th>الرمز</th>
+                                <th>السعر</th>
+                                <th>الكمية</th>
+                                <th>الفئة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTable">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #64748b;">لا توجد منتجات</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Customers Page -->
+            <div id="customers" class="page-section">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">إدارة العملاء</div>
+                        <button class="btn" onclick="newCustomer()">+ عميل جديد</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم العميل</th>
+                                <th>رقم الهاتف</th>
+                                <th>البريد الإلكتروني</th>
+                                <th>المشتريات</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTable">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: #64748b;">لا يوجد عملاء</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div id="reports" class="page-section">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">التقارير</div>
+                    </div>
+                    <div class="form-group">
+                        <label>من التاريخ:</label>
+                        <input type="date" id="reportFromDate">
+                    </div>
+                    <div class="form-group">
+                        <label>إلى التاريخ:</label>
+                        <input type="date" id="reportToDate">
+                    </div>
+                    <button class="btn" onclick="generateReport()">إنشاء التقرير</button>
+                </div>
+            </div>
+
+            <!-- Backup Page -->
+            <div id="backup" class="page-section">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">النسخ الاحتياطية</div>
+                    </div>
+                    <div style="margin: 20px 0;">
+                        <button class="btn" onclick="createBackup()">📥 إنشاء نسخة احتياطية</button>
+                        <button class="btn btn-secondary" style="margin-right: 10px;" onclick="restoreBackup()">📤 استعادة نسخة</button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>الحجم</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="backupsTable">
+                            <tr>
+                                <td colspan="3" style="text-align: center; color: #64748b;">لا توجد نسخ احتياطية</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings" class="page-section">
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">الإعدادات</div>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم المتجر:</label>
+                        <input type="text" id="storeName" placeholder="اسم متجرك">
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>رقم الهاتف:</label>
+                            <input type="tel" id="storePhone" placeholder="+966...">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني:</label>
+                            <input type="email" id="storeEmail" placeholder="your@email.com">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>العنوان:</label>
+                        <textarea id="storeAddress" placeholder="عنوان المتجر" rows="3"></textarea>
+                    </div>
+                    <button class="btn" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+                    <button class="btn btn-danger" style="margin-right: 10px;" onclick="clearAllData()">🗑️ حذف جميع البيانات</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>نظام ميزان لنقاط البيع - الإصدار 3.1.0</p>
+            <p style="margin-top: 5px;">جميع الحقوق محفوظة © 2026 | مطور بواسطة: Electron + HTML5</p>
+        </footer>
+    </div>
 
     <script>
-        // تحميل البيانات عند بدء التطبيق
+        // Check if Electron API is available
+        const isElectron = typeof window.electronAPI !== 'undefined';
+
+        // App Data
+        let appData = {
+            invoices: [],
+            products: [],
+            customers: [],
+            settings: {
+                storeName: 'ميزان',
+                storePhone: '',
+                storeEmail: '',
+                storeAddress: ''
+            }
+        };
+
+        // Initialize app
         window.addEventListener('DOMContentLoaded', () => {
-            loadDashboardData();
+            loadData();
+            updateDashboard();
+            initializeDatePickers();
+            console.log('Application loaded');
         });
 
-        function loadDashboardData() {
-            // هذا مثال على كيفية تحميل البيانات
-            // يمكنك توصيله بـ IPC handlers في main.js
-            console.log('Dashboard loaded');
+        // Show page
+        function showPage(pageName, event) {
+            if (event) event.preventDefault();
+            
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show selected page
+            const page = document.getElementById(pageName);
+            if (page) {
+                page.classList.add('active');
+            }
+
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event?.target.classList.add('active');
         }
 
+        // Load data from Electron IPC or localStorage
+        async function loadData() {
+            try {
+                if (isElectron) {
+                    const result = await window.electronAPI.loadData();
+                    if (result.ok && result.data) {
+                        appData = JSON.parse(result.data);
+                    }
+                } else {
+                    const stored = localStorage.getItem('appData');
+                    if (stored) {
+                        appData = JSON.parse(stored);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Save data
+        async function saveData() {
+            try {
+                if (isElectron) {
+                    await window.electronAPI.saveData(JSON.stringify(appData));
+                } else {
+                    localStorage.setItem('appData', JSON.stringify(appData));
+                }
+                showAlert('تم حفظ البيانات بنجاح', 'success');
+            } catch (error) {
+                console.error('Error saving data:', error);
+                showAlert('حدث خطأ في حفظ البيانات', 'error');
+            }
+        }
+
+        // Update dashboard
+        function updateDashboard() {
+            document.getElementById('invoiceCount').textContent = appData.invoices.length;
+            document.getElementById('productCount').textContent = appData.products.length;
+            document.getElementById('customerCount').textContent = appData.customers.length;
+
+            const dailySales = appData.invoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
+            document.getElementById('dailySales').textContent = dailySales.toFixed(2);
+
+            // Update recent invoices
+            const recentInvoices = appData.invoices.slice(-5).reverse();
+            const tbody = document.getElementById('recentInvoices');
+            if (recentInvoices.length > 0) {
+                tbody.innerHTML = recentInvoices.map(inv => `
+                    <tr>
+                        <td>${inv.id || 'بدون رقم'}</td>
+                        <td>${inv.date || new Date().toLocaleDateString('ar-SA')}</td>
+                        <td>${inv.total?.toFixed(2) || '0'}</td>
+                        <td><span class="status-active">✓ مكتمل</span></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // New invoice
         function newInvoice() {
-            alert('فاتورة جديدة');
+            const invoice = {
+                id: 'INV-' + Date.now(),
+                date: new Date().toLocaleDateString('ar-SA'),
+                total: 0,
+                items: []
+            };
+            appData.invoices.push(invoice);
+            saveData();
+            updateDashboard();
+            showAlert('تم إنشاء فاتورة جديدة: ' + invoice.id, 'success');
         }
 
-        function addProduct() {
-            alert('إضافة منتج جديد');
+        // New product
+        function newProduct() {
+            const productName = prompt('اسم المنتج:');
+            if (!productName) return;
+
+            const product = {
+                id: 'PRD-' + Date.now(),
+                name: productName,
+                code: 'PRD-' + Math.random().toString(36).substr(2, 9),
+                price: parseFloat(prompt('السعر:') || 0),
+                quantity: parseInt(prompt('الكمية:') || 0),
+                category: prompt('الفئة:') || 'عام'
+            };
+
+            appData.products.push(product);
+            saveData();
+            updateDashboard();
+            showAlert('تم إضافة منتج جديد: ' + productName, 'success');
         }
 
-        function manageCustomers() {
-            alert('إدارة العملاء');
+        // New customer
+        function newCustomer() {
+            const customerName = prompt('اسم العميل:');
+            if (!customerName) return;
+
+            const customer = {
+                id: 'CUST-' + Date.now(),
+                name: customerName,
+                phone: prompt('رقم الهاتف:') || '',
+                email: prompt('البريد الإلكتروني:') || '',
+                purchases: 0
+            };
+
+            appData.customers.push(customer);
+            saveData();
+            updateDashboard();
+            showAlert('تم إضافة عميل جديد: ' + customerName, 'success');
         }
 
-        function viewReports() {
-            alert('التقارير');
+        // Backup
+        async function createBackup() {
+            try {
+                if (isElectron) {
+                    const result = await window.electronAPI.saveDialog('backup.json', JSON.stringify(appData, null, 2));
+                    if (result.ok) {
+                        showAlert('تم حفظ النسخة الاحتياطية بنجاح: ' + result.path, 'success');
+                    }
+                } else {
+                    const element = document.createElement('a');
+                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(appData, null, 2)));
+                    element.setAttribute('download', 'backup-' + Date.now() + '.json');
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                    showAlert('تم تحميل النسخة الاحتياطية', 'success');
+                }
+            } catch (error) {
+                console.error('Backup error:', error);
+                showAlert('خطأ في إنشاء النسخة الاحتياطية', 'error');
+            }
         }
 
-        function backup() {
-            alert('إنشاء نسخة احتياطية');
+        // Restore backup
+        async function restoreBackup() {
+            try {
+                if (isElectron) {
+                    const result = await window.electronAPI.openDialog();
+                    if (result.ok) {
+                        appData = JSON.parse(result.data);
+                        await saveData();
+                        updateDashboard();
+                        showAlert('تم استعادة النسخة الاحتياطية بنجاح', 'success');
+                    }
+                } else {
+                    showAlert('يرجى استخدام ملف النسخة الاحتياطية المحفوظ', 'info');
+                }
+            } catch (error) {
+                console.error('Restore error:', error);
+                showAlert('خطأ في استعادة النسخة الاحتياطية', 'error');
+            }
         }
+
+        // Settings
+        function saveSettings() {
+            appData.settings = {
+                storeName: document.getElementById('storeName').value,
+                storePhone: document.getElementById('storePhone').value,
+                storeEmail: document.getElementById('storeEmail').value,
+                storeAddress: document.getElementById('storeAddress').value
+            };
+            saveData();
+            showAlert('تم حفظ الإعدادات', 'success');
+        }
+
+        // Generate report
+        function generateReport() {
+            const fromDate = document.getElementById('reportFromDate').value;
+            const toDate = document.getElementById('reportToDate').value;
+            
+            if (!fromDate || !toDate) {
+                showAlert('يرجى اختيار التواريخ', 'error');
+                return;
+            }
+
+            showAlert(`التقرير من ${fromDate} إلى ${toDate}`, 'info');
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('هل أنت متأكد من حذف جميع البيانات؟ هذا الإجراء غير قابل للتراجع!')) {
+                appData = {
+                    invoices: [],
+                    products: [],
+                    customers: [],
+                    settings: appData.settings
+                };
+                saveData();
+                updateDashboard();
+                showAlert('تم حذف جميع البيانات', 'success');
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertEl = document.getElementById('alert');
+            alertEl.textContent = message;
+            alertEl.className = `alert alert-${type} show`;
+            setTimeout(() => {
+                alertEl.classList.remove('show');
+            }, 4000);
+        }
+
+        // Initialize date pickers
+        function initializeDatePickers() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reportFromDate').value = today;
+            document.getElementById('reportToDate').value = today;
+        }
+
+        // Get app info
+        async function getAppInfo() {
+            try {
+                if (isElectron) {
+                    const info = await window.electronAPI.appInfo();
+                    console.log('App Info:', info);
+                    document.getElementById('userInfo').textContent = `${info.platform} - v${info.version}`;
+                }
+            } catch (error) {
+                console.error('Error getting app info:', error);
+            }
+        }
+
+        // Call getAppInfo on startup
+        getAppInfo();
     </script>
 </body>
 </html>
