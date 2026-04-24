@@ -47,10 +47,8 @@ function createWindow() {
   mainWindow.setMenuBarVisibility(false);
 
   const htmlPath = path.join(getAppPath(), 'src', 'index.html');
-  // استخدم loadURL مع file:// لأن loadFile بيفشل مع asar
-  const htmlURL = 'file://' + htmlPath.replace(/\\/g, '/');
 
-  mainWindow.loadURL(htmlURL)
+  mainWindow.loadFile(htmlPath)
     .then(() => {
       mainWindow.show();
       mainWindow.focus();
